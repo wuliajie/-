@@ -1,0 +1,141 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+#define STACK_MAX     20
+#define STACK_INCREAT 10
+
+typedef char ElemType;
+
+typedef struct
+{
+	ElemType *base;
+	ElemType *top;
+	int stackSize;
+}sqstack;
+
+void Initstack(sqstack *s)
+{
+	s->base = (ElemType *)malloc(STACK_MAX * sizeof(ElemType));
+	if (!s->base)
+		exit(0);
+	s->top = s->base;
+	s->stackSize = SCHAR_MAX;
+}
+
+void Push(sqstack *s, ElemType e)
+{
+	if (s->top - s->base >= s->stackSize)
+	{
+		s->base = (ElemType *)realloc(s->base,(s->stackSize + STACK_INCREAT) * sizeof(ElemType));
+		if (!s->base)
+			exit(0);
+	}
+	*(s->top) = e;
+	s->top++;
+}
+void Pop(sqstack *s, ElemType *e)
+{
+	if (s->top == s->base)
+		return;
+	*e = *--s->top;
+}
+int Len(sqstack *s)
+{
+	return (s->top - s->base);
+}
+void Clear(){}
+void Destory(){}
+
+int main()
+{
+	sqstack s;
+	char a;
+	char str[STACK_MAX];
+	char str1[STACK_MAX] = "";
+	int i = 0,j=0,k=1;
+
+	Initstack(&s);
+
+	printf("请输入普通表达式:\n");
+	//scanf_s("%s",str);
+	gets(str);
+
+	printf("\n表达式为");
+
+	while (str[i] != '\0')
+	{
+		while (isdigit(str[i]) || str[i] == '.')  // 用于过滤数字
+		{
+			str1[j++]=str[i++];
+			str1[j] = '\0';
+			if (j >= 20)
+			{
+				printf("出错：输入的单个数据过大！\n");
+				return -1;
+			}
+			
+			if (!isdigit(str[i]) && str[i]!='.')
+			{
+				printf("%s ", str1);
+				//Push(&s, d);
+				j = 0;
+				break;
+			}
+		}
+		if (Len(&s) == 0)
+		{
+			Push(&s, str[i]);
+			i++;
+		}
+		switch (str[i])
+		{
+		case '+':
+			if (*(s.top - 1) == '(')
+			{
+				Push(&s, str[i]); i++; break;
+			}
+			while (Len(&s) && !(*(s.top - 1) == '('))
+			{
+				Pop(&s, &a); 
+				printf("%c ",a);
+			}
+			Push(&s,str[i++]);
+			break;
+		case '-':
+			if (*(s.top - 1) == '(')
+			{
+				Push(&s, str[i]); i++; break;
+			}
+			while (Len(&s) && !(*(s.top - 1) == '('))
+			{
+				Pop(&s, &a);
+				printf("%c ", a);
+			}
+			Push(&s, str[i++]);
+			break;
+		case '*':
+			Push(&s,str[i++]);
+			break;
+		case '/':
+			Push(&s, str[i++]);
+			break;
+		case '(':
+			Push(&s, str[i++]);
+			break;
+		case ')':
+			while (*(s.top - 1) != '('){
+				Pop(&s,&a);
+				printf("%c ", a);
+			}Pop(&s, &a); i++;
+		}
+	}
+	while (Len(&s))
+	{
+		Pop(&s, &a);
+		printf("%c ",a);
+	}
+	
+	return 0;
+}
