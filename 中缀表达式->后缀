@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_DEPRECATE//解决scanf VS编译问题
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -8,14 +8,14 @@
 
 typedef char ElemType;
 
-typedef struct
+typedef struct//栈结构
 {
 	ElemType *base;
 	ElemType *top;
 	int stackSize;
 }sqstack;
 
-void Initstack(sqstack *s)
+void Initstack(sqstack *s)//初始化
 {
 	s->base = (ElemType *)malloc(STACK_MAX * sizeof(ElemType));
 	if (!s->base)
@@ -24,7 +24,7 @@ void Initstack(sqstack *s)
 	s->stackSize = SCHAR_MAX;
 }
 
-void Push(sqstack *s, ElemType e)
+void Push(sqstack *s, ElemType e)//入栈
 {
 	if (s->top - s->base >= s->stackSize)
 	{
@@ -35,18 +35,20 @@ void Push(sqstack *s, ElemType e)
 	*(s->top) = e;
 	s->top++;
 }
-void Pop(sqstack *s, ElemType *e)
+void Pop(sqstack *s, ElemType *e)//出栈
 {
 	if (s->top == s->base)
 		return;
 	*e = *--s->top;
 }
-int Len(sqstack *s)
+
+int Len(sqstack *s)//获取长度
 {
 	return (s->top - s->base);
 }
-void Clear(){}
-void Destory(){}
+
+void Clear(){}//清空
+void Destory(){}//销毁
 
 int main()
 {
@@ -66,7 +68,7 @@ int main()
 
 	while (str[i] != '\0')
 	{
-		while (isdigit(str[i]) || str[i] == '.')  // 用于过滤数字
+		while (isdigit(str[i]) || str[i] == '.')  // 有数字进这里
 		{
 			str1[j++]=str[i++];
 			str1[j] = '\0';
@@ -84,13 +86,13 @@ int main()
 				break;
 			}
 		}
-		if (Len(&s) == 0)
+		if (Len(&s) == 0)//栈长为0符号直接入栈
 		{
 			Push(&s, str[i]);
 			i++;
 		}
 		switch (str[i])
-		{
+		{//此处可简化成三个if，+—运算一致，*/(一致，）
 		case '+':
 			if (*(s.top - 1) == '(')
 			{
@@ -131,7 +133,7 @@ int main()
 			}Pop(&s, &a); i++;
 		}
 	}
-	while (Len(&s))
+	while (Len(&s))//打印剩余字符
 	{
 		Pop(&s, &a);
 		printf("%c ",a);
@@ -139,3 +141,5 @@ int main()
 	
 	return 0;
 }
+//输入 1+（2-3）*4+10/5
+//输出 1 2 3 - 4 * + 10 5 / +(逆波兰运算)
