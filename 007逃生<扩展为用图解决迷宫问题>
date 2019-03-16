@@ -1,0 +1,102 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include <stdlib.h>
+#include<math.h>
+
+#define MaxVertexNum 50    /* 最大顶点数设为100 */
+#define rect 50
+#define true 1
+#define YES 1
+typedef int Vertex;         /* 用顶点下标表示顶点,为整型 */
+
+int page;//全局变量，步长
+
+typedef struct Point{//节点信息
+	int x;
+	int y;
+	int flag;
+}point[MaxVertexNum];//节点矩阵
+typedef struct GNode{//图结构
+	int Nv;  // 顶点数 
+	point G;
+}*PtrGNode;
+typedef PtrGNode MGraph;
+
+MGraph CreateGraph()
+{//初始化图
+	MGraph M1 = (MGraph)malloc(sizeof(struct GNode));
+	scanf("%d", &(M1->Nv));   /* 读入顶点个数 */
+	int V,a = 0,b = 0;
+	for (V = 0; V < M1->Nv; V++)
+	{
+		scanf("%d,%d",&a,&b);
+		M1->G[V].x = a;
+		M1->G[V].y = b;
+		if (50 - abs(a) <= page || 50 - abs(b) <= page)
+			M1->G[V].flag = 1;
+		else
+			M1->G[V].flag = 0;
+	}
+	return M1;
+}
+
+MGraph Graph;//全局图变量
+int visited[MaxVertexNum] = {0};//访问
+int answer;
+
+int FirstJump(Vertex V)
+{//从原点跳
+	if (pow(Graph->G[V].x, 2) + pow(Graph->G[V].y, 2) <= pow(page, 2))
+		return 1;
+	else
+		return 0;
+}
+int Jump(Vertex V, Vertex W){//两点跳
+	if (pow(Graph->G[V].x - Graph->G[W].x, 2) + pow(Graph->G[V].y - Graph->G[W].y, 2) <= pow(page, 2))
+		return 1;
+	else
+		return 0;
+}
+int DFS(Vertex V)
+{
+	Vertex W;
+	visited[V] = true;
+	if (Graph->G[V].flag)
+	{
+		answer = YES; printf("%d<-", V);//也可以压进栈，DFS结束后推出
+	}
+	else{
+		for (W = 0; W < Graph->Nv; W++){
+			if (W == V)
+				continue;
+			if (!visited[W] && Jump(V, W)){
+				answer = DFS(W);
+				if (answer == YES) {
+					printf("%d<-", V); break;
+				}
+			}
+		}
+	}
+	return answer;
+}
+void save(MGraph G){
+	Vertex V;
+	for (V = 0; V < Graph->Nv; V++){
+		if (!visited[V] && FirstJump(V)){
+			answer = DFS(V);
+			if (answer == YES) break;
+		}
+	}
+	if (answer == YES) printf("Yes");
+	else printf("No");
+}
+int main()
+{
+	printf("请输入007每次跳跃步长：");
+	scanf("%d",&page);
+	printf("请输入鳄鱼数目：");
+	Graph = CreateGraph();
+	save(Graph);//在规定步长内寻找到岸边的路径
+	//若用栈可在这里pop，导出求生路径
+	return 0;
+}
